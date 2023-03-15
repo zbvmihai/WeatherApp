@@ -13,6 +13,8 @@ object Constants {
     const val APP_ID: String = "3a4bb7dc818ee5a2f060b636426e7050"
     const val BASE_URL: String = "https://api.openweathermap.org/data/"
     const val METRIC_UNI: String = "metric"
+    const val PREFERENCE_NAME = "WeatherAppPreference"
+    const val WEATHER_RESPONSE_DATA = "weather_response_data"
 
 
     @SuppressLint("ServiceCast")
@@ -28,8 +30,8 @@ object Constants {
 
             return when{
                 activeNetwork!!.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                activeNetwork!!.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                activeNetwork!!.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
                 else -> false
 
             }
