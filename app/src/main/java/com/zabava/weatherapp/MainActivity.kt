@@ -10,12 +10,14 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.google.android.gms.location.*
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -28,7 +30,6 @@ import com.google.gson.*
 import com.zabava.weatherapp.models.WeatherResponse
 import com.zabava.weatherapp.network.WeatherService
 import retrofit2.converter.gson.GsonConverterFactory
-
 
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
@@ -46,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding?.root)
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
 
         if (!isLocationEnabled()) {
             Toast.makeText(this, "Please turn on your location!", Toast.LENGTH_SHORT).show()
@@ -77,16 +77,16 @@ class MainActivity : AppCompatActivity() {
             showCustomProgressDialog()
 
             listCall.enqueue(object : Callback<WeatherResponse> {
+                @RequiresApi(Build.VERSION_CODES.N)
                 override fun onResponse(
                     call: Call<WeatherResponse>,
                     response: Response<WeatherResponse>
                 ) {
                     if (response.isSuccessful) {
-
-
                         hideProgressDialog()
 
                         val weatherList: WeatherResponse? = response.body()
+                        setupUI(weatherList!!)
                         Log.i("Response Result", "$weatherList")
                     } else {
                         when (response.code()) {
@@ -214,6 +214,26 @@ class MainActivity : AppCompatActivity() {
         if (mProgressDialog != null) {
             mProgressDialog!!.dismiss()
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun setupUI(weatherList: WeatherResponse) {
+        for (i in weatherList.weather.indices) {
+
+            binding?.tvMain?.text = weatherList.weather[i].main
+            binding?.tvMainDescription?.text = weatherList.weather[i].description
+            binding?.tvTemp?.text = weatherList.main.temp.toString() +
+                    getUnit(application.resources.configuration.locales.toString())
+        }
+    }
+
+    private fun getUnit(unit: String): String {
+        var value = "°C"
+        if ("US" == unit || "LR" == unit || "MM" == unit){
+            value = "°F"
+        }
+        return value
     }
 }
 
